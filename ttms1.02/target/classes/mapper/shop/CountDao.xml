@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.tedu.ttms.shop.dao.CountDao">
+	
+	<select id="queryForList" resultType="map">
+		select p.name,r.count 
+		from tab_route r,tms_products p 
+		where r.productId=p.id
+	</select>
+	<!-- 统计已支付订单 -->
+	<select id="queryForCount" resultType="map">
+		 select p.name,sum(num) as count
+		 from tab_order r,tms_products p where r.productId = p.id
+		 and r.states=1 group by productId
+	</select>
+</mapper>

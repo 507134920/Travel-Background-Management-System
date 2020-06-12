@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.tedu.ttms.product.dao.ProductDao">
+
+	<!-- 分页查询 -->
+	<sql id="findObjectsWhere">
+       <where>
+       	p.teamId=t.id and p.classId=c.id
+          <if test="teamId!=null">
+              and p.teamId=#{teamId}
+          </if>
+          <if test="classId!=null">
+              and p.classId=#{classId}
+          </if>
+           <if test="states!=null">
+              and p.states=#{states}
+          </if>
+       </where>
+    </sql>
+	<select id="findPageObject" resultType="map">
+		select p.*,c.id classId,c.name className,
+		t.id teamId,t.name teamName 
+		from tms_classes c,tms_products p,tms_teams t 
+		<include refid="findObjectsWhere"/>
+		order by createdTime desc
+        limit #{startIndex},#{pageSize}
+	</select>
+	<select id="getRowCount" resultType="java.lang.Integer">
+		select count(*)
+		from tms_classes c,tms_products p,tms_teams t 
+		<include refid="findObjectsWhere"/>
+	</select>
+	
+	<!-- 产品状态的修改-->
+	<update id="statesById">
+		update tms_products
+		set states=#{states}
+		where id in 
+        <if test="ids!=null">
+          <foreach collection="ids" 
+            open="(" close=")"
+            separator=","
+            item="item">
+             #{item}
+          </foreach>
+        </if>
+	</update>
+	
+	<!-- 添加按钮 -->
+	<insert id="insertObject" parameterType="cn.tedu.ttms.product.entity.Product">
+		insert into tms_products(
+		code,name,teamId,exText,
+		onlineDate,offlineDate,
+		quantity,minQty,soldQty,price,
+		classId,nights,states,note,
+		createdUser,createdTime,
+		modifiedUser,modifiedTime
+		)
+		values(
+		#{code},#{name},#{teamId},#{exText},
+		#{onlineDate},#{offlineDate},
+		#{quantity},#{minQty},#{soldQty},#{price},
+		#{classId},#{nights},#{states},#{note},
+		#{createdUser},NOW(),
+		#{modifiedUser},NOW()
+		)
+	</insert>
+	<!-- 修改按钮 -->
+	<!-- 根据产品id更新团信息 -->
+    <update id="updateObject"
+       parameterType="cn.tedu.ttms.product.entity.Product">
+       update tms_products
+       set
+       code=#{code},name=#{name},teamId=#{teamId},exText=#{exText},
+       onlineDate=#{onlineDate},offlineDate=#{offlineDate},
+       quantity=#{quantity},minQty=#{minQty},
+       soldQty=#{soldQty},price=#{price},
+       classId=#{classId},nights=#{nights},
+       states=#{states},note=#{note},
+       modifiedTime=NOW(),
+       modifiedUser=#{modifiedUser}
+       where id=#{id}
+    </update>
+    
+    <!-- 根据id执行查找操作 -->
+    <select id="findObjectById" 
+            resultType="cn.tedu.ttms.product.entity.Product">
+       select * 
+       from tms_products
+       where id=#{id}
+    </select>
+    
+</mapper>

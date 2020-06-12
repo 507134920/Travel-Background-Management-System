@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.tedu.ttms.product.dao.RouteDao">
+ 
+	<sql id="findObjectsWhere">
+		<where>
+			r.productId=p.id
+			<if test='startState!=null and startState!=""'>
+            	and startState like concat("%",#{startState},"%") 
+			</if>
+			<if test='endState!=null and endState!=""'>
+            	and endState like concat("%",#{endState},"%") 
+      		</if>
+		</where>
+	</sql>
+	<select id="findPageObject" resultType="map">
+		select r.*,p.name from tab_route r,tms_products p
+		<include refid="findObjectsWhere"/>
+		order by r.rid asc
+		limit #{startIndex},#{pageSize}
+	</select>
+    <select id="getRowCount" resultType="java.lang.Integer">
+		select count(*)
+		from tab_route r,tms_products p
+		<include refid="findObjectsWhere"/>
+	</select>
+	
+	<!-- 添加按钮 -->
+	<insert id="insertObject" parameterType="cn.tedu.ttms.product.entity.Route">
+		insert into tab_route(
+		startState,endState,productId,bigPic,
+		smallPic,count,rimage
+		)
+		values(
+		#{startState},#{endState},#{productId},#{bigPic},
+		#{smallPic},#{count},#{rimage}
+		)
+	</insert>
+	<!-- 修改按钮 -->
+	<!-- 根据产品id更新团信息 -->
+    <update id="updateObject"
+       parameterType="cn.tedu.ttms.product.entity.Route">
+       update tab_route
+       set
+       startState=#{startState},endState=#{endState},productId=#{productId},bigPic=#{bigPic},
+       smallPic=#{smallPic},count=#{count},rimage=#{rimage}
+       where rid=#{rid}
+    </update>
+    
+    <!-- 根据id执行查找操作 -->
+    <select id="findObjectById" 
+            resultType="cn.tedu.ttms.product.entity.Route">
+       select * 
+       from tab_route
+       where rid=#{rid}
+    </select>
+    
+     <!-- 查询产品的id和name -->
+     <select id="findProIdAndNames"
+           resultType="map">
+          select id,name from tms_products
+     </select>
+     
+     <delete id="deleteObject" parameterType="Integer">
+     	delete from tab_route 
+     	where rid in 
+        <if test="rids!=null">
+          <foreach collection="rids" 
+            open="(" close=")"
+            separator=","
+            item="item">
+             #{item}
+          </foreach>
+        </if>
+     </delete>
+</mapper>

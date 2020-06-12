@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.tedu.ttms.shop.dao.OrderDao">
+<!-- 通过sql标签定义一个语句，通过include标签引入 -->
+	<sql id="whereQuery">
+		<where>
+          <if test="states!=null">
+             o.states=#{states}
+          </if>
+       </where>
+	</sql>
+
+	<select id="findObjects" resultType="map">
+       select o.*,p.id projectId,
+       p.name productName
+       from tab_order o join tms_products p
+       on o.productId=p.id
+       <include refid="whereQuery"></include>
+       order by createdTime desc
+       limit #{startIndex},#{pageSize}
+    </select>
+
+	<select id="getRowCount" resultType="java.lang.Integer">
+        select count(*)
+        from tab_order o join tms_products p
+        on o.productId=p.id
+        <include refid="whereQuery"></include>
+    </select>
+    
+</mapper>
